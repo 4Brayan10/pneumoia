@@ -1,0 +1,31 @@
+# render.yaml
+
+# Paso 3: Crear la base de datos PostgreSQL
+databases:
+  - name: pneumoia-db
+    databaseName: pneumoia
+    user: pneumoia
+    plan: free # Plan gratuito
+
+# Paso 1 y 2: Crear y configurar el servicio web
+services:
+  - type: web
+    name: pneumoia-web
+    env: python
+    plan: free # Plan gratuito para uso académico
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn pneumoia.wsgi --bind 0.0.0.0:$PORT"
+    
+    # Paso 4: Agregar variables de entorno
+    envVars:
+      # Conecta automáticamente la base de datos creada arriba con esta variable
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pneumoia-db
+          property: connectionString
+      
+      # Ejemplo de otras variables (puedes agregar las que falten)
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true # Render generará una clave secreta automáticamente
