@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Gestión de Roles{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">Gestión de Roles</h1>
+        <p style="margin: 4px 0 0; color: var(--outline-dark);">Administra los roles y permisos disponibles en el sistema.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'crear_rol' %}" class="btn-primary" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+            <span class="material-symbols-outlined">add</span>
+            Nuevo Rol
+        </a>
+        <a href="{% url 'lista_usuarios' %}" class="btn-clear" style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Volver a Usuarios
+        </a>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px;">
+    <div style="overflow-x: auto;">
+        <table class="data-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>ROL</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>USUARIOS ASIGNADOS</th>
+                    <th>ESTADO</th>
+                    <th style="text-align: right;">ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rol in roles %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #2e8af6, #1a6fd8); display: flex; align-items: center; justify-content: center; color: white;">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">shield_person</span>
+                            </div>
+                            <span style="font-weight: 600; color: var(--on-surface);">{{ rol.nombre }}</span>
+                        </div>
+                    </td>
+                    <td style="color: var(--on-surface-variant);">{{ rol.descripcion|default:"—" }}</td>
+                    <td>
+                        <span style="background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: 500;">
+                            {{ rol.usuario_set.count }} usuario{% if rol.usuario_set.count != 1 %}s{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if rol.estado %}
+                        <span style="background-color: #E6F4EA; color: #1E8E3E; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">Activo</span>
+                        {% else %}
+                        <span style="background-color: #FCE8E6; color: #D93025; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="{% url 'editar_rol' rol.id_rol %}" class="icon-btn" title="Editar rol">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">edit</span>
+                            </a>
+                            <a href="{% url 'eliminar_rol' rol.id_rol %}" class="icon-btn" title="Eliminar rol">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--error);">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: var(--outline-dark);">
+                        No hay roles registrados en el sistema.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

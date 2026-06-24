@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PneumoIA - {% block titulo %}Sistema{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="app-container">
+    
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">
+                    <span class="material-symbols-outlined filled">pulmonology</span>
+                </div>
+                <div>
+                    <div class="title">Centro Radiológico</div>
+                    <div class="subtitle">{{ user.id_rol.nombre|default:"Usuario" }}</div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- <a href="{% url 'nueva_carga' %}" class="btn-primary" style="margin-bottom: 8px;"> -->
+                    <!-- <span class="material-symbols-outlined">add</span> -->
+                    <!-- Nuevo Análisis -->
+                <!-- </a> -->
+
+                <ul class="nav-menu">
+                    <a href="{% url 'panel_principal' %}" class="nav-item {% block nav_panel %}{% endblock %}">
+                        <span class="material-symbols-outlined">grid_view</span>
+                        Panel Principal
+                    </a>
+                    <a href="{% url 'pacientes_lista' %}" class="nav-item {% block nav_pacientes %}{% endblock %}">
+                        <span class="material-symbols-outlined">group</span>
+                        Pacientes
+                    </a>
+                    {% if user.id_rol.nombre == 'Administrador' or user.id_rol.nombre == 'Médico' %}
+                    <a href="{% url 'nueva_carga' %}" class="nav-item {% block nav_nueva_carga %}{% endblock %}">
+                        <span class="material-symbols-outlined">description</span>
+                        Nueva Carga
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'pacientes_historial' %}" class="nav-item {% block nav_historial %}{% endblock %}">
+                        <span class="material-symbols-outlined">history</span>
+                        Historial
+                    </a>
+                    {% if user.id_rol.nombre == 'Administrador' %}
+                    <a href="{% url 'lista_usuarios' %}" class="nav-item {% block nav_usuarios %}{% endblock %}">
+                        <span class="material-symbols-outlined">manage_accounts</span>
+                        Usuarios
+                    </a>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <ul class="nav-menu">
+                    <a href="#" class="nav-item">
+                        <span class="material-symbols-outlined">help</span>
+                        Ayuda
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-item">
+                        <span class="material-symbols-outlined">logout</span>
+                        Cerrar Sesión
+                    </a>
+                </ul>
+            </div>
+        </aside>
+
+        
+        <main class="main-content">
+            
+            <header class="navbar">
+                <div class="navbar-brand">PneumoIA Diagnóstico</div>
+
+
+
+                <div class="navbar-actions">
+                    <!-- Campana de notificaciones -->
+                    <div class="notif-wrapper" style="position:relative;">
+                        <button class="icon-btn" onclick="document.getElementById('notifDropdown').classList.toggle('show')" style="position:relative;">
+                            <span class="material-symbols-outlined">notifications</span>
+                            {% if notificaciones_count > 0 %}
+                            <span style="position:absolute; top:2px; right:2px; width:10px; height:10px; background-color:var(--error); border-radius:50%; border:2px solid var(--surface-variant);"></span>
+                            {% endif %}
+                        </button>
+                        
+                        <!-- Menú desplegable de notificaciones -->
+                        <div id="notifDropdown" class="profile-dropdown" style="width: 350px; right: 0; left: auto; padding: 0;">
+                            <div class="profile-dropdown-header" style="border-bottom: 1px solid var(--outline); padding: 16px; display: flex; justify-content: space-between; align-items: center; background-color: var(--surface-variant); border-radius: 12px 12px 0 0;">
+                                <span style="font-weight: 600; color: var(--on-surface);">Notificaciones (IA)</span>
+                                <span style="font-size: 12px; background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px;">{{ notificaciones_count }} nuevas</span>
+                            </div>
+                            <div class="profile-dropdown-body" style="padding: 0; max-height: 320px; overflow-y: auto;">
+                                {% for notif in notificaciones_ia %}
+                                <a href="{% url 'resultado_ia_detalle' notif.id_radiografia.id_radiografia %}" style="text-decoration: none;">
+                                    <div style="padding: 12px 16px; border-bottom: 1px solid var(--outline); display: flex; gap: 12px; align-items: flex-start; transition: background 0.2s; cursor: pointer;" onmouseover="this.style.background='var(--surface-variant)'" onmouseout="this.style.background='white'">
+                                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if 'Neumonía' in notif.prediccion %}#fee2e2{% else %}#dcfce7{% endif %}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <span class="material-symbols-outlined" style="color: {% if 'Neumonía' in notif.prediccion %}#ef4444{% else %}#22c55e{% endif %}; font-size: 20px;">{% if 'Neumonía' in notif.prediccion %}coronavirus{% else %}check_circle{% endif %}</span>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 2px;">Nuevo Análisis Completado</div>
+                                            <div style="font-size: 12px; color: var(--outline-dark); margin-top: 2px;">Radiografía de <strong>{{ notif.id_radiografia.id_paciente.nombres }}</strong> procesada. Resultado: <strong style="color: {% if 'Neumonía' in notif.prediccion %}#ef4444{% else %}#059669{% endif %}">{{ notif.prediccion }}</strong>.</div>
+                                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Hace {{ notif.fecha_analisis|timesince }}</div>
+                                        </div>
+                                    </div>
+                                </a>
+                                {% empty %}
+                                <div style="padding: 30px 16px; text-align: center; color: var(--outline-dark); font-size: 13px;">
+                                    <span class="material-symbols-outlined" style="font-size: 32px; color: #cbd5e1; margin-bottom: 8px;">notifications_paused</span><br>
+                                    No hay análisis recientes
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="profile-dropdown-footer" style="padding: 12px; text-align: center; border-top: 1px solid var(--outline); border-radius: 0 0 12px 12px;">
+                                <a href="{% url 'pacientes_historial' %}" style="font-size: 13px; color: var(--primary); font-weight: 500; text-decoration: none;">Ver todo el historial</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">settings</span>
+                    </button>
+                    
+                    <div class="profile-wrapper" style="position:relative;">
+                        <div class="user-profile" onclick="document.getElementById('profileDropdown').classList.toggle('show')" style="cursor:pointer;">
+                            <div style="width:32px; height:32px; border-radius:50%; background: linear-gradient(135deg, #3B82F6, #1E3A8A); display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:14px;">
+                                {{ user.nombres|make_list|first|default:"U" }}
+                            </div>
+                            <span>{{ user.nombres|default:"Usuario" }}</span>
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--outline-dark)">expand_more</span>
+                        </div>
+
+                        <!-- Menú desplegable de perfil -->
+                        <div id="profileDropdown" class="profile-dropdown">
+                            <div class="profile-dropdown-header">
+                                <div style="width:48px; height:48px; border-radius:50%; background: linear-gradient(135deg, #3B82F6, #1E3A8A); display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:20px;">
+                                    {{ user.nombres|make_list|first|default:"U" }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; font-size:15px; color:var(--on-surface);">{{ user.nombres }} {{ user.apellidos }}</div>
+                                    <div style="font-size:13px; color:var(--outline-dark);">{{ user.email|default:"Sin correo" }}</div>
+                                </div>
+                            </div>
+                            <div class="profile-dropdown-body">
+                                <div class="profile-info-row">
+                                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">badge</span>
+                                    <div>
+                                        <div class="profile-info-label">Usuario</div>
+                                        <div class="profile-info-value">{{ user.username|default:"—" }}</div>
+                                    </div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">id_card</span>
+                                    <div>
+                                        <div class="profile-info-label">Cédula (CI)</div>
+                                        <div class="profile-info-value">{{ user.ci|default:"—" }}</div>
+                                    </div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">phone</span>
+                                    <div>
+                                        <div class="profile-info-label">Teléfono</div>
+                                        <div class="profile-info-value">{{ user.telefono|default:"—" }}</div>
+                                    </div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">work</span>
+                                    <div>
+                                        <div class="profile-info-label">Rol</div>
+                                        <div class="profile-info-value">{{ user.id_rol.nombre|default:"Sin rol" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-dropdown-footer">
+                                <a href="{% url 'logout' %}" class="profile-logout-btn">
+                                    <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+                                    Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenido único de cada página -->
+            <div class="page-content">
+                {% if messages %}
+                    <div class="messages-container" style="margin-bottom: 20px;">
+                        {% for message in messages %}
+                            <div class="alert" style="padding: 15px; border-radius: 8px; margin-bottom: 10px; background-color: {% if message.tags == 'success' %}#d4edda{% elif message.tags == 'error' %}#f8d7da{% else %}#cce5ff{% endif %}; color: {% if message.tags == 'success' %}#155724{% elif message.tags == 'error' %}#721c24{% else %}#004085{% endif %}; border: 1px solid {% if message.tags == 'success' %}#c3e6cb{% elif message.tags == 'error' %}#f5c6cb{% else %}#b8daff{% endif %}; font-weight: 500;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% block contenido %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Script para cerrar los dropdowns si se hace clic fuera -->
+    <script>
+        document.addEventListener('click', function(event) {
+            const profileDropdown = document.getElementById('profileDropdown');
+            const notifDropdown = document.getElementById('notifDropdown');
+            const profileWrapper = document.querySelector('.profile-wrapper');
+            const notifWrapper = document.querySelector('.notif-wrapper');
+            
+            if (profileDropdown && profileWrapper && !profileWrapper.contains(event.target)) {
+                profileDropdown.classList.remove('show');
+            }
+            if (notifDropdown && notifWrapper && !notifWrapper.contains(event.target)) {
+                notifDropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+
+</html>

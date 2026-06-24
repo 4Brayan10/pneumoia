@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Historial de Accesos{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <a href="{% url 'lista_usuarios' %}" style="display: flex; align-items: center; gap: 4px; color: var(--primary); text-decoration: none; margin-bottom: 12px; font-weight: 500;">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Volver a usuarios
+        </a>
+        <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">Historial de Accesos</h1>
+        <p style="margin: 4px 0 0; color: var(--outline-dark);">Registro de inicios de sesión del personal.</p>
+    </div>
+</div>
+
+<div class="card" style="padding: 24px;">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--outline); color: var(--outline-dark);">
+                    <th style="padding: 12px 16px; font-weight: 500;">Usuario</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Rol</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">IP</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Sistema</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Navegador</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acceso in accesos %}
+                <tr style="border-bottom: 1px solid var(--surface-variant);">
+                    <td style="padding: 16px;">
+                        <div style="font-weight: 500; color: var(--on-surface);">
+                            {{ acceso.id_usuario.nombres }} {{ acceso.id_usuario.apellidos }}
+                        </div>
+                        <div style="font-size: 13px; color: var(--outline-dark);">
+                            {{ acceso.id_usuario.username }}
+                        </div>
+                    </td>
+                    <td style="padding: 16px;">
+                        <span style="background-color: var(--primary-container); color: var(--on-primary-container); padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">
+                            {{ acceso.id_usuario.id_rol.nombre|default:"Sin Rol" }}
+                        </span>
+                    </td>
+                    <td style="padding: 16px; color: var(--on-surface-variant);">{{ acceso.ip_acceso|default:"No registrada" }}</td>
+                    <td style="padding: 16px; color: var(--on-surface-variant);">{{ acceso.sistema_operativo|default:"No registrado" }}</td>
+                    <td style="padding: 16px; color: var(--on-surface-variant); max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ acceso.navegador }}">
+                        {{ acceso.navegador|default:"No registrado" }}
+                    </td>
+                    <td style="padding: 16px; color: var(--on-surface-variant); white-space: nowrap;">
+                        {{ acceso.fecha_acceso|date:"d/m/Y H:i" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 32px; text-align: center; color: var(--outline-dark);">
+                        Todavía no hay accesos registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

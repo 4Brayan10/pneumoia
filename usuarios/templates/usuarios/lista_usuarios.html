@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Gestión de Usuarios{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">Gestión de Usuarios</h1>
+        <p style="margin: 4px 0 0; color: var(--outline-dark);">Administra los accesos y roles del personal.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'historial_accesos' %}" class="btn-clear" style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; background: #DBEAFE; color: #1E3A8A; border: 1px solid #BFDBFE; border-radius: 8px; font-weight: 500;">
+            <span class="material-symbols-outlined">history</span>
+            Historial de Accesos
+        </a>
+        <a href="{% url 'lista_roles' %}" class="btn-clear" style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 8px 16px; background: #F8FBFF; color: #1E3A8A; border: 1px solid #D6E4F5; border-radius: 8px; font-weight: 500;">
+            <span class="material-symbols-outlined">shield_person</span>
+            Gestionar Roles
+        </a>
+        <a href="{% url 'crear_usuario' %}" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-outlined">add</span>
+            Nuevo Usuario
+        </a>
+    </div>
+</div>
+
+<div class="card" style="padding: 24px;">
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--outline); color: var(--outline-dark);">
+                    <th style="padding: 12px 16px; font-weight: 500;">Usuario</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Cédula (CI)</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Rol</th>
+                    <th style="padding: 12px 16px; font-weight: 500;">Estado</th>
+                    <th style="padding: 12px 16px; font-weight: 500; text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usr in usuarios %}
+                <tr style="border-bottom: 1px solid var(--surface-variant);">
+                    <td style="padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6, #1E3A8A); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">
+                                {{ usr.nombres|make_list|first|default:"U" }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 500; color: var(--on-surface);">{{ usr.nombres }} {{ usr.apellidos }}</div>
+                                <div style="font-size: 13px; color: var(--outline-dark);">{{ usr.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 16px; color: var(--on-surface-variant);">{{ usr.ci }}</td>
+                    <td style="padding: 16px;">
+                        <span style="background-color: var(--primary-container); color: var(--on-primary-container); padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">
+                            {{ usr.id_rol.nombre|default:"Sin Rol" }}
+                        </span>
+                    </td>
+                    <td style="padding: 16px;">
+                        {% if usr.estado %}
+                        <span style="background-color: #E6F4EA; color: #1E8E3E; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">Activo</span>
+                        {% else %}
+                        <span style="background-color: #FCE8E6; color: #D93025; padding: 4px 12px; border-radius: 16px; font-size: 13px; font-weight: 500;">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 16px; text-align: right;">
+                        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="{% url 'editar_usuario' usr.id_usuario %}" class="icon-btn" title="Editar">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">edit</span>
+                            </a>
+                            <a href="{% url 'eliminar_usuario' usr.id_usuario %}" class="icon-btn" title="Eliminar">
+                                <span class="material-symbols-outlined" style="font-size: 20px; color: var(--error);">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 32px; text-align: center; color: var(--outline-dark);">
+                        No hay usuarios registrados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

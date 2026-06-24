@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Eliminar Radiografía{% endblock %}
+{% block nav_pacientes %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Eliminar Radiografía</h1>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; max-width: 600px;">
+    <p style="font-size: 16px; color: #334155; margin-bottom: 20px;">
+        ¿Está seguro que desea eliminar la radiografía <strong>{{ radiography.nombre_archivo }}</strong> del paciente <strong>{{ radiografia.id_paciente.nombres }} {{ radiografia.id_paciente.apellidos }}</strong>?
+        Esta acción eliminará el archivo y los resultados de análisis de IA asociados permanentemente.
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-primary" style="background-color: #ef4444;">Eliminar Definitivamente</button>
+            <a href="{% url 'lista_radiografias' radiografia.id_paciente.id_paciente %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

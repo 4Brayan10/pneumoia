@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block titulo %}{% if rol %}Editar Rol{% else %}Nuevo Rol{% endif %}{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">
+            {% if rol %}Editar Rol: {{ rol.nombre }}{% else %}Crear Nuevo Rol{% endif %}
+        </h1>
+        <p style="margin: 4px 0 0; color: var(--outline-dark);">Complete los datos del rol en el siguiente formulario.</p>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; max-width: 600px;">
+
+    {% if error %}
+    <div style="padding: 14px 18px; background-color: #fee2e2; color: #991b1b; border-radius: 8px; border: 1px solid #fca5a5; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: 500;">
+        <span class="material-symbols-outlined">error</span>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+        {% csrf_token %}
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label for="nombre" style="font-size: 14px; font-weight: 600; color: #334155;">
+                Nombre del Rol <span style="color: #ef4444;">*</span>
+            </label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{% if rol %}{{ rol.nombre }}{% endif %}"
+                placeholder="Ej: Médico Radiólogo, Técnico, Administrador"
+                class="form-control"
+                required
+            >
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label for="descripcion" style="font-size: 14px; font-weight: 600; color: #334155;">
+                Descripción
+            </label>
+            <textarea
+                id="descripcion"
+                name="descripcion"
+                rows="3"
+                placeholder="Descripción breve de las responsabilidades del rol..."
+                class="form-control"
+            >{% if rol %}{{ rol.descripcion }}{% endif %}</textarea>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <input
+                type="checkbox"
+                id="estado"
+                name="estado"
+                {% if not rol or rol.estado %}checked{% endif %}
+                style="width: 18px; height: 18px; cursor: pointer; accent-color: #2e8af6;"
+            >
+            <label for="estado" style="font-size: 14px; font-weight: 600; color: #334155; cursor: pointer;">
+                Rol Activo (disponible para asignar a usuarios)
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+            <button type="submit" class="btn-primary" style="border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined">save</span>
+                {% if rol %}Guardar Cambios{% else %}Crear Rol{% endif %}
+            </button>
+            <a href="{% url 'lista_roles' %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0f172a;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #2e8af6;
+        box-shadow: 0 0 0 3px rgba(46, 138, 246, 0.1);
+        background-color: #ffffff;
+    }
+</style>
+{% endblock %}

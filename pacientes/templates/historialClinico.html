@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Historial{% endblock %}
+{% block nav_historial %}active{% endblock %}
+
+{% block contenido %}
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Historial de Diagnósticos</h1>
+                        <p class="page-subtitle">Revise y gestione los estudios radiográficos procesados por la IA.</p>
+                    </div>
+                </div>
+
+                
+                <form class="historial-filters" method="GET" action="{% url 'pacientes_historial' %}" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: center;">
+                    <div class="search-input-box" style="flex: 1; min-width: 250px;">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="ID de paciente o nombre..." style="width: 100%;">
+                    </div>
+
+                    <div class="historial-actions" style="display: flex; gap: 12px; align-items: center;">
+                        <select class="select-box" name="diagnostico">
+                            <option value="">Todos los diagnósticos</option>
+                            <option value="Neumonía" {% if request.GET.diagnostico == 'Neumonía' %}selected{% endif %}>Neumonía</option>
+                            <option value="Normal" {% if request.GET.diagnostico == 'Normal' %}selected{% endif %}>Normal</option>
+                        </select>
+                        <select class="select-box" name="fecha" style="background: white;">
+                            <option value="">Cualquier fecha</option>
+                            <option value="7" {% if request.GET.fecha == '7' %}selected{% endif %}>Últimos 7 días</option>
+                            <option value="30" {% if request.GET.fecha == '30' %}selected{% endif %}>Últimos 30 días</option>
+                        </select>
+                        <button type="submit" class="btn-primary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: none; background: var(--primary, #3B82F6); color: white; cursor: pointer; font-weight: 500;">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">filter_list</span>
+                            Filtrar
+                        </button>
+                    </div>
+                </form>
+
+                
+                <div class="historial-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>FECHA DE ESTUDIO</th>
+                                <th>ID PACIENTE</th>
+                                <th>NOMBRE DEL PACIENTE</th>
+                                <th>RESULTADO IA</th>
+                                <th>CONFIANZA</th>
+                                <th>DIAGNÓSTICO FINAL</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in historial %}
+                            <tr>
+                                <td>{{ item.fecha_registro|date:"d M Y, H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'paciente_detalle' item.id_paciente.id_paciente %}" style="text-decoration: none; color: #2e8af6; font-weight: 600;">
+                                        P-{{ item.id_paciente.id_paciente|stringformat:"05d" }}
+                                    </a>
+                                </td>
+                                <td>{{ item.id_paciente.apellidos }}, {{ item.id_paciente.nombres }}</td>
+                                <td>
+                                    {% if 'Neumonía' in item.id_diagnostico.id_resultado.prediccion %}
+                                    <span class="badge badge-neumonia">🔴 Neumonía</span>
+                                    {% else %}
+                                    <span class="badge badge-normal">🟢 Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="confidence-cell">
+                                        <div class="conf-bar-bg">
+                                            <div class="conf-bar-fill {% if 'Neumonía' in item.id_diagnostico.id_resultado.prediccion %}red{% else %}green{% endif %}" style="width: {{ item.id_diagnostico.id_resultado.porcentaje_confianza }}%;"></div>
+                                        </div>
+                                        <span class="conf-value">{{ item.id_diagnostico.id_resultado.porcentaje_confianza }}%</span>
+                                    </div>
+                                </td>
+                                <td style="max-width: 200px;">
+                                    {% if item.id_diagnostico.diagnostico_final %}
+                                    <span style="font-size: 13px; color: #0f172a; font-weight: 500;">{{ item.id_diagnostico.diagnostico_final|truncatechars:60 }}</span>
+                                    {% else %}
+                                    <span style="font-size: 12px; color: #94a3b8; font-style: italic;">Sin diagnóstico final</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        {% if item.id_diagnostico %}
+                                        <a href="{% url 'diagnostico_detalle' item.id_diagnostico.id_diagnostico %}" class="action-btn" title="Ver Diagnóstico" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                                            <span class="material-symbols-outlined">assignment</span>
+                                        </a>
+                                        {% if item.id_diagnostico.id_resultado.id_radiografia %}
+                                        <a href="{% url 'resultado_ia_detalle' item.id_diagnostico.id_resultado.id_radiografia.id_radiografia %}" class="action-btn" title="Ver Análisis IA" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; background: #e0f2fe; color: #0369a1;">
+                                            <span class="material-symbols-outlined">analytics</span>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'generar_reporte_pdf' item.id_diagnostico.id_diagnostico %}" target="_blank" class="action-btn" title="Descargar PDF" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                                            <span class="material-symbols-outlined">download</span>
+                                        </a>
+                                        <a href="{% url 'historial_eliminar' item.id_historial %}" class="action-btn" title="Eliminar Historial" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #ef4444; background: #fee2e2;">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </a>
+                                        {% else %}
+                                        <a href="{% url 'historial_eliminar' item.id_historial %}" class="action-btn" title="Eliminar Historial" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #ef4444; background: #fee2e2;">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 24px; color: #64748b;">No hay registros en el historial clínico.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="pagination-footer">
+                        <div>Mostrando {{ historial|length }} resultados</div>
+                        <div class="pagination-controls">
+                        </div>
+                    </div>      </div>
+                </div>
+{% endblock %}

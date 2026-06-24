@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}Eliminar Usuario{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="margin-bottom: 24px;">
+    <a href="{% url 'lista_usuarios' %}" style="display: flex; align-items: center; gap: 4px; color: var(--primary); text-decoration: none; margin-bottom: 12px; font-weight: 500;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+        Volver a la lista
+    </a>
+    <h1 style="margin: 0; font-size: 24px; color: var(--error);">Eliminar Usuario</h1>
+</div>
+
+<div class="card" style="padding: 32px; max-width: 600px; margin: 0 auto; text-align: center;">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background-color: #FCE8E6; color: #D93025; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+        <span class="material-symbols-outlined" style="font-size: 32px;">warning</span>
+    </div>
+    
+    <h2 style="font-size: 20px; color: var(--on-surface); margin: 0 0 16px;">¿Estás seguro de que deseas eliminar este usuario?</h2>
+    
+    <div style="background-color: var(--surface-variant); padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+        <p style="margin: 0 0 8px; color: var(--on-surface);"><strong>Nombre:</strong> {{ usuario.nombres }} {{ usuario.apellidos }}</p>
+        <p style="margin: 0 0 8px; color: var(--on-surface);"><strong>Cédula:</strong> {{ usuario.ci }}</p>
+        <p style="margin: 0 0 8px; color: var(--on-surface);"><strong>Rol:</strong> {{ usuario.id_rol.nombre|default:"Sin rol" }}</p>
+        <p style="margin: 0; color: var(--on-surface);"><strong>Usuario:</strong> {{ usuario.username }}</p>
+    </div>
+    
+    <p style="color: var(--outline-dark); margin-bottom: 32px;">Esta acción es irreversible y eliminará al usuario permanentemente del sistema.</p>
+
+    <form method="post" style="display: flex; justify-content: center; gap: 16px;">
+        {% csrf_token %}
+        <a href="{% url 'lista_usuarios' %}" class="btn-secondary" style="padding: 10px 24px; border: 1px solid var(--outline); border-radius: 8px; text-decoration: none; color: var(--on-surface); font-weight: 500;">
+            Cancelar
+        </a>
+        <button type="submit" class="btn-primary" style="padding: 10px 24px; border: none; border-radius: 8px; background-color: var(--error); color: white; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-outlined">delete_forever</span>
+            Sí, Eliminar Usuario
+        </button>
+    </form>
+</div>
+{% endblock %}

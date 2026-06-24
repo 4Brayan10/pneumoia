@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Pacientes{% endblock %}
+{% block nav_pacientes %}active{% endblock %}
+
+{% block contenido %}
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Gestión de Pacientes</h1>
+                        <p class="page-subtitle">Administre la información y el historial radiológico de sus pacientes.
+                        </p>
+                    </div>
+                    <a href="{% url 'paciente_crear' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span class="material-symbols-outlined">person_add</span>
+                        Registrar Nuevo Paciente
+                    </a>
+                </div>
+
+                
+                <form method="GET" action="{% url 'pacientes_lista' %}">
+                <div class="filters-card">
+                    <div class="filter-group flex-1">
+                        <span class="filter-label">BUSCAR PACIENTE</span>
+                        <div class="filter-input">
+                            <span class="material-symbols-outlined">search</span>
+                            <input type="text" name="q" value="{{ query }}" placeholder="Nombre, ID o documento...">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">FECHA DESDE</span>
+                        <div class="filter-input">
+                            <span class="material-symbols-outlined">calendar_today</span>
+                            <input type="text" placeholder="mm/dd/yyyy">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">FECHA HASTA</span>
+                        <div class="filter-input">
+                            <span class="material-symbols-outlined">calendar_today</span>
+                            <input type="text" placeholder="mm/dd/yyyy">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-filter">Filtrar</button>
+                    <a href="{% url 'pacientes_lista' %}" class="btn-clear" aria-label="Limpiar filtros" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                        <span class="material-symbols-outlined">filter_alt_off</span>
+                    </a>
+                </div>
+                </form>
+
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID PACIENTE</th>
+                                <th>NOMBRE Y APELLIDO</th>
+                                <th>EDAD</th>
+                                <th>ÚLTIMO ANÁLISIS</th>
+                                <th>ESTADO</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for paciente in pacientes %}
+                            <tr>
+                                <td>P-{{ paciente.id_paciente|stringformat:"05d" }}</td>
+                                <td>{{ paciente.apellidos }}, {{ paciente.nombres }}</td>
+                                <td>
+                                    {% if paciente.fecha_nacimiento %}
+                                        {{ paciente.fecha_nacimiento|timesince }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ paciente.fecha_registro|date:"d M Y" }}</td>
+                                <td><span class="badge badge-normal">Activo</span></td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{% url 'paciente_detalle' paciente.id_paciente %}" class="action-btn" title="Ver" style="text-decoration: none;"><span
+                                                class="material-symbols-outlined">visibility</span></a>
+                                        <a href="{% url 'paciente_editar' paciente.id_paciente %}" class="action-btn" title="Editar" style="text-decoration: none;"><span
+                                                class="material-symbols-outlined">edit</span></a>
+                                        {% if user.id_rol.nombre == 'Administrador' or user.id_rol.nombre == 'Médico' %}
+                                        <a href="{% url 'paciente_eliminar' paciente.id_paciente %}" class="action-btn delete" title="Eliminar" style="text-decoration: none;"><span
+                                                class="material-symbols-outlined">delete</span></a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 20px;">No hay pacientes registrados.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="pagination-footer">
+                        <div>Mostrando {{ pacientes|length }} pacientes</div>
+                        <div class="pagination-controls">
+                        </div>
+                    </div>
+                </div>
+{% endblock %}

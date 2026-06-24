@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PneumoIA - Iniciar Sesión</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+</head>
+
+<body>
+    <div class="login-container">
+        
+        <div class="login-left">
+            <img class="login-image"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP1zwgbSiWp7IQ8EWR-V8XM_d26UvnMklrqt_5pc9U9cq7hAlTAC9X4WxkCpdhmFybuMwfgXdd3sPVlJGuTrm27jd5cRLEKH7ZjqjsKy4xyp_dfiwWo_PKGzCG974jorQ6HQ2uHeHoi02cwfuXEO0dMsTSE91OwuXWgvOWnwhPqBxap9q9Vq1HwK2UcteXFLSwo1lppLB312uaIMQ12tQ6-CkOlUGJRXpn2gIidy9A87-5NOfcMx8RBUBjbcGB7LqXpqDhX0jObCg"
+                alt="Lung Structure">
+            <div class="login-overlay"></div>
+            <div class="login-left-content">
+                <span class="material-symbols-outlined icon filled">pulmonology</span>
+                <h1>Precisión en cada diagnóstico.</h1>
+                <p>Plataforma impulsada por IA para el análisis avanzado de imágenes radiográficas. Diseñada para
+                    potenciar la eficiencia del profesional médico.</p>
+            </div>
+            <div class="login-left-footer">
+                <span class="material-symbols-outlined">shield_person</span>
+                <span>Sistema validado para uso clínico nivel IIa.</span>
+            </div>
+        </div>
+
+        
+        <div class="login-right">
+            <div class="login-form-wrapper">
+                <div class="login-header">
+                    <h2>Iniciar sesión</h2>
+                    <p>Ingrese sus credenciales institucionales para acceder a su panel de trabajo.</p>
+                </div>
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">Nombre de Usuario o Correo Electrónico</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">person</span>
+                            <input type="text" id="username" name="username" placeholder="Ingrese su usuario o correo registrado">
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if error %}has-error{% endif %}" id="password-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">lock</span>
+                            <input type="password" id="password" name="password">
+                        </div>
+                        {% if error %}
+                        <div class="error-message">
+                            <span class="material-symbols-outlined">error</span>
+                            <span>{{error}}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- <div class="forgot-password"> -->
+                        <!-- <a href="#">¿Olvidaste tu contraseña?</a> -->
+                    <!-- </div> -->
+
+                    
+                    
+                    <div class="form-group recaptcha-group" style="display: flex; justify-content: center; margin-bottom: 24px;">
+                        {{ captcha|safe }}
+                    </div>
+
+
+                    <button type="submit" class="btn-primary btn-submit">
+                        Ingresar al sistema
+                        <span class="material-symbols-outlined"></span>
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 24px;">
+                        <span style="font-size: 14px; color: var(--on-surface-variant);">¿No tiene una cuenta?</span> 
+                        <a href="{% url 'registro' %}" style="font-size: 14px; font-weight: 500; color: var(--primary); text-decoration: none;">Regístrese como nuevo médico</a>
+                    </div>
+                </form>
+
+                
+
+                <div class="login-footer">
+                    <span class="material-symbols-outlined">lock</span>
+                    <span>Conexión segura.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

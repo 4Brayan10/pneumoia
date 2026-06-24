@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Radiografías de {{ paciente.nombres }}{% endblock %}
+{% block nav_pacientes %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Radiografías del Paciente</h1>
+        <p class="page-subtitle">Historial de imágenes médicas de <strong>{{ paciente.nombres }} {{ paciente.apellidos }}</strong>.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        {% if user.id_rol.nombre == 'Administrador' or user.id_rol.nombre == 'Médico' %}
+        <a href="{% url 'nueva_carga' %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="material-symbols-outlined">add</span>
+            Subir Nueva
+        </a>
+        {% endif %}
+        <a href="{% url 'paciente_detalle' paciente.id_paciente %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+            Volver al Perfil
+        </a>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; margin-top: 20px;">
+    {% if radiografias %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+        {% for rad in radiografias %}
+        <div style="border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white; display: flex; flex-direction: column; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+            <div style="height: 200px; background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; position: relative;">
+                {% if rad.ruta_archivo %}
+                <img src="{{ rad.ruta_archivo.url }}" alt="{{ rad.nombre_archivo }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <span class="material-symbols-outlined" style="font-size: 64px; color: #94a3b8;">image</span>
+                {% endif %}
+                <span style="position: absolute; top: 12px; right: 12px; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; background-color: #dcfce7; color: #166534;">
+                    {{ rad.estado_procesamiento }}
+                </span>
+            </div>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1;">
+                <div>
+                    <h4 style="margin: 0; font-size: 15px; color: #0f172a; word-break: break-all;">{{ rad.nombre_archivo }}</h4>
+                    <span style="font-size: 12px; color: #64748b;">Subido el {{ rad.fecha_subida|date:"d M Y, H:i" }}</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: auto; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+                    <a href="{% url 'resultado_ia_detalle' rad.id_radiografia %}" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; flex: 1;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">analytics</span>
+                        Ver Análisis IA
+                    </a>
+                    {% if user.id_rol.nombre == 'Administrador' or user.id_rol.nombre == 'Médico' %}
+                    <a href="{% url 'radiografia_eliminar' rad.id_radiografia %}" class="btn-clear" style="text-decoration: none; padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; background: #fee2e2; color: #991b1b; border-radius: 8px; font-weight: 500; border: 1px solid #fca5a5;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px 0; color: #64748b;">
+        <span class="material-symbols-outlined" style="font-size: 64px; color: #cbd5e1; margin-bottom: 16px;">image_not_supported</span>
+        <p style="margin: 0; font-size: 16px; font-weight: 500;">No hay radiografías registradas para este paciente.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

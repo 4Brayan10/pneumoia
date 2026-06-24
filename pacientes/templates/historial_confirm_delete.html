@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Eliminar Historial{% endblock %}
+{% block nav_historial %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Eliminar Historial y Diagnóstico</h1>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; max-width: 600px;">
+    <p style="font-size: 16px; color: #334155; margin-bottom: 20px;">
+        ¿Está seguro que desea eliminar este registro de análisis IA y diagnóstico correspondiente al paciente <strong>{{ historial.id_paciente.nombres }} {{ historial.id_paciente.apellidos }}</strong>?
+        <br><br>
+        <span style="color: #ef4444; font-weight: 600;">⚠️ Advertencia:</span> Esta acción borrará el historial, el análisis de la IA, el diagnóstico médico y la imagen física de la radiografía. Esta acción no se puede deshacer.
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-primary" style="background-color: #ef4444;">Eliminar Confirmado</button>
+            <a href="javascript:history.back()" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

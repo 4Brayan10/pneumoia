@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Panel de Control{% endblock %}
+{% block nav_panel %}active{% endblock %}
+
+{% block contenido %}
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Panel de Control</h1>
+                        <p class="page-subtitle">Resumen de actividad y acceso rápido a herramientas diagnósticas.</p>
+                    </div>
+                </div>
+
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL PACIENTES</span>
+                            <span class="stat-value">{{ total_pacientes }}</span>
+                        </div>
+                        <div class="stat-icon blue-light">
+                            <span class="material-symbols-outlined">group</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">ANÁLISIS HOY</span>
+                            <span class="stat-value">{{ analisis_hoy }}</span>
+                        </div>
+                        <div class="stat-icon blue-dark">
+                            <span class="material-symbols-outlined">analytics</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card alert">
+                        <div class="stat-info">
+                            <span class="stat-label">REPORTES PENDIENTES</span>
+                            <span class="stat-value">{{ reportes_pendientes }}</span>
+                        </div>
+                        <div class="stat-icon red-light">
+                            <span class="material-symbols-outlined">warning</span>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <h2 class="section-title">Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <a href="{% url 'nueva_carga' %}" class="action-card primary">
+                        <div class="action-icon">
+                            <span class="material-symbols-outlined">upload_file</span>
+                        </div>
+                        <div class="action-title">Nueva Carga de Radiografía</div>
+                        <div class="action-desc">Inicie un nuevo análisis asistido por IA</div>
+                    </a>
+
+                    <a href="{% url 'pacientes_lista' %}" class="action-card">
+                        <div class="action-icon blue">
+                            <span class="material-symbols-outlined">folder_shared</span>
+                        </div>
+                        <div class="action-title">Gestión de Pacientes</div>
+                        <div class="action-desc">Directorio y perfiles clínicos</div>
+                    </a>
+
+                    <a href="{% url 'pacientes_historial' %}" class="action-card">
+                        <div class="action-icon green">
+                            <span class="material-symbols-outlined">history</span>
+                        </div>
+                        <div class="action-title">Historial</div>
+                        <div class="action-desc">Revisar diagnósticos previos</div>
+                    </a>
+                </div>
+
+                
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <h3>Actividad Semanal</h3>
+                        <a href="#">Ver detalle</a>
+                    </div>
+                    <div class="chart-container">
+                        {% for dia in actividad_semanal %}
+                        <div class="chart-bar-group" title="{{ dia.cantidad }} análisis">
+                            <div class="chart-bar {% if dia.activo %}active{% endif %}" style="height: {{ dia.porcentaje }}%; {% if dia.cantidad == 0 %}background-color:#DBEAFE;{% endif %}"></div>
+                            <span class="chart-label">{{ dia.label }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+{% endblock %}

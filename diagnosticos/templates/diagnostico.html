@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Diagnóstico Asistido por IA{% endblock %}
+
+{% block contenido %}
+<h1 class="diagnostic-title">
+    Diagnóstico Asistido por IA
+</h1>
+
+<div class="patient-info-bar">
+    <div class="patient-info-item">
+        <strong>Paciente:</strong> <span>{{ paciente.apellidos }}, {{ paciente.nombres }} (ID: P-{{ paciente.id_paciente|stringformat:"05d" }})</span>
+    </div>
+    <div class="patient-info-item">
+        <strong>Estudio:</strong> <span>Radiografía de Tórax</span>
+    </div>
+    <div class="patient-info-item">
+        <strong>Fecha Carga:</strong> <span>{{ radiografia.fecha_subida|date:"d/m/Y H:i" }}</span>
+    </div>
+</div>
+
+<div class="images-grid">
+    <div class="image-panel">
+        <div class="image-panel-title">
+            RADIOGRAFÍA ORIGINAL
+        </div>
+        <div class="image-container" style="display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; min-height: 350px;">
+            {% if radiografia.ruta_archivo %}
+            <img src="{{ radiografia.ruta_archivo.url }}" alt="Radiografía Original" style="max-width: 100%; max-height: 400px; object-fit: contain;">
+            {% else %}
+            <span class="material-symbols-outlined" style="font-size: 64px; color: #fff;">image</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="image-panel">
+        <div class="image-panel-title">
+            MAPA DE CALOR IA (PROYECCIÓN GRAD-CAM)
+        </div>
+        <div class="image-container" style="display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; min-height: 350px;">
+            <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                {% if radiografia.ruta_archivo %}
+                <img src="{{ radiografia.ruta_archivo.url }}" alt="Mapa de calor base" style="max-width: 100%; max-height: 400px; object-fit: contain; opacity: 0.8; filter: contrast(1.2) sepia(1) hue-rotate(200deg) saturate(3);">
+                <!-- Superposición simulada del mapa de calor -->
+                <div style="position: absolute; top: 30%; left: 25%; width: 130px; height: 130px; background: radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.6) 40%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                <div style="position: absolute; top: 25%; right: 28%; width: 140px; height: 140px; background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,255,0,0.75) 30%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                {% else %}
+                <span class="material-symbols-outlined" style="font-size: 64px; color: #fff;">image</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="results-panel">
+    <div class="results-header">
+        PANEL DE RESULTADOS DE INTELIGENCIA ARTIFICIAL
+    </div>
+    <div class="results-content">
+        <div class="results-left" style="flex: 1;">
+            <div class="diagnosis-text" style="font-size: 24px; font-weight: 700; line-height: 1.2;">
+                <div style="font-size:14px; font-weight:400; color:var(--on-surface-variant); margin-bottom:4px;">
+                    Diagnóstico Predictivo
+                </div>
+                {% if 'Neumonía' in resultado.prediccion %}
+                <span style="color: #ef4444;">{{ resultado.prediccion|upper }}</span>
+                {% else %}
+                <span style="color: #22c55e;">{{ resultado.prediccion|upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="prob-group" style="margin-top: 16px;">
+                <div class="prob-label">Confianza de Predicción</div>
+                <div class="prob-bar-container">
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill" style="width: {{ resultado.porcentaje_confianza }}%; background-color: {% if 'Neumonía' in resultado.prediccion %}#ef4444{% else %}#22c55e{% endif %};"></div>
+                    </div>
+                    <div class="prob-value">{{ resultado.porcentaje_confianza }}% de Confianza</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-right" style="flex: 1; padding-left: 20px; border-left: 1px solid #e2e8f0;">
+            <div style="font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px;">Información Adicional</div>
+            <div style="font-size: 14px; color: #0f172a; margin-bottom: 4px;"><strong>Modelo IA:</strong> {{ resultado.modelo_ia }}</div>
+            <div style="font-size: 14px; color: #0f172a;"><strong>Tiempo de Procesamiento:</strong> {{ resultado.tiempo_procesamiento }} segundos</div>
+        </div>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; margin-top: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; color: #0f172a;">Registrar Diagnóstico Clínico del Médico</h3>
+    
+    <form method="post" action="{% url 'diagnostico_crear' resultado.id_resultado %}" style="display: flex; flex-direction: column; gap: 16px;">
+        {% csrf_token %}
+        
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label for="diagnostico_final" style="font-size: 14px; font-weight: 600; color: #334155;">Diagnóstico Final</label>
+            <select name="diagnostico_final" id="diagnostico_final" class="form-control" required>
+                <option value="Neumonía confirmada">Neumonía confirmada</option>
+                <option value="Pulmón normal (sin indicios de neumonía)">Pulmón normal (sin indicios de neumonía)</option>
+                <option value="Requiere estudios adicionales / Incierto">Requiere estudios adicionales / Incierto</option>
+            </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label for="observaciones" style="font-size: 14px; font-weight: 600; color: #334155;">Observaciones Clínicas</label>
+            <textarea name="observaciones" id="observaciones" rows="4" class="form-control" placeholder="Escriba las observaciones del estudio radiológico..." required></textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label for="recomendaciones" style="font-size: 14px; font-weight: 600; color: #334155;">Recomendaciones / Tratamiento</label>
+            <textarea name="recomendaciones" id="recomendaciones" rows="4" class="form-control" placeholder="Escriba el plan de tratamiento o recomendaciones de seguimiento..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button type="submit" class="btn-primary" style="border: none; cursor: pointer;">Guardar Diagnóstico</button>
+            <a href="{% url 'lista_radiografias' paciente.id_paciente %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0f172a;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #2e8af6;
+        box-shadow: 0 0 0 3px rgba(46, 138, 246, 0.1);
+        background-color: #ffffff;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Resultado Análisis IA{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Análisis de Inteligencia Artificial</h1>
+        <p class="page-subtitle">Resultados predictivos del modelo IA para el paciente <strong>{{ radiografia.id_paciente.nombres }} {{ radiografia.id_paciente.apellidos }}</strong>.</p>
+    </div>
+    <div>
+        <a href="{% url 'lista_radiografias' radiografia.id_paciente.id_paciente %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+            Volver a Radiografías
+        </a>
+    </div>
+</div>
+
+<div class="images-grid" style="margin-top: 20px;">
+    <div class="image-panel">
+        <div class="image-panel-title">
+            RADIOGRAFÍA ORIGINAL
+        </div>
+        <div class="image-container" style="display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; min-height: 350px;">
+            {% if radiografia.ruta_archivo %}
+            <img src="{{ radiografia.ruta_archivo.url }}" alt="Radiografía Original" style="max-width: 100%; max-height: 400px; object-fit: contain;">
+            {% else %}
+            <span class="material-symbols-outlined" style="font-size: 64px; color: #fff;">image</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="image-panel">
+        <div class="image-panel-title">
+            MAPA DE CALOR IA (GRAD-CAM)
+        </div>
+        <div class="image-container" style="display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; min-height: 350px;">
+            <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                {% if radiografia.ruta_archivo %}
+                <img src="{{ radiografia.ruta_archivo.url }}" alt="Mapa de calor base" style="max-width: 100%; max-height: 400px; object-fit: contain; opacity: 0.8; filter: contrast(1.2) sepia(1) hue-rotate(200deg) saturate(3);">
+                <div style="position: absolute; top: 30%; left: 25%; width: 130px; height: 130px; background: radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.6) 40%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                <div style="position: absolute; top: 25%; right: 28%; width: 140px; height: 140px; background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,255,0,0.75) 30%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                {% else %}
+                <span class="material-symbols-outlined" style="font-size: 64px; color: #fff;">image</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="results-panel" style="margin-top: 24px;">
+    <div class="results-header">
+        PANEL DE RESULTADOS DE INTELIGENCIA ARTIFICIAL
+    </div>
+    <div class="results-content">
+        <div class="results-left" style="flex: 1;">
+            <div style="font-size:14px; font-weight:400; color:var(--on-surface-variant); margin-bottom:4px;">
+                Diagnóstico Predictivo
+            </div>
+            <div style="font-size: 28px; font-weight: 700;">
+                {% if 'Neumonía' in resultado.prediccion %}
+                <span style="color: #ef4444;">{{ resultado.prediccion|upper }}</span>
+                {% else %}
+                <span style="color: #22c55e;">{{ resultado.prediccion|upper }}</span>
+                {% endif %}
+            </div>
+
+            <div class="prob-group" style="margin-top: 16px;">
+                <div class="prob-label">Confianza de Predicción</div>
+                <div class="prob-bar-container">
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill" style="width: {{ resultado.porcentaje_confianza }}%; background-color: {% if 'Neumonía' in resultado.prediccion %}#ef4444{% else %}#22c55e{% endif %};"></div>
+                    </div>
+                    <div class="prob-value">{{ resultado.porcentaje_confianza }}% de Certeza</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-right" style="flex: 1; padding-left: 20px; border-left: 1px solid #e2e8f0;">
+            <div style="font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 8px;">Métricas del Modelo</div>
+            <div style="font-size: 14px; color: #0f172a; margin-bottom: 4px;"><strong>Modelo IA Utilizado:</strong> {{ resultado.modelo_ia }}</div>
+            <div style="font-size: 14px; color: #0f172a; margin-bottom: 4px;"><strong>Tiempo de Procesamiento:</strong> {{ resultado.tiempo_procesamiento }} segundos</div>
+            <div style="font-size: 14px; color: #0f172a;"><strong>Estado:</strong> Completado</div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+        <a href="{% url 'diagnostico_crear' resultado.id_resultado %}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+            <span class="material-symbols-outlined">assignment_turned_in</span>
+            Confirmar y Añadir Diagnóstico Médico
+        </a>
+    </div>
+</div>
+{% endblock %}

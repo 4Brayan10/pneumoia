@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo %}{{ accion }} Usuario{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="margin-bottom: 24px;">
+    <a href="{% url 'lista_usuarios' %}" style="display: flex; align-items: center; gap: 4px; color: var(--primary); text-decoration: none; margin-bottom: 12px; font-weight: 500;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+        Volver a la lista
+    </a>
+    <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">{{ accion }} Usuario</h1>
+    <p style="margin: 4px 0 0; color: var(--outline-dark);">
+        {% if accion == 'Crear' %}Ingrese los datos del nuevo integrante del personal.{% else %}Actualice los datos del usuario.{% endif %}
+    </p>
+</div>
+
+<div class="card" style="padding: 32px; max-width: 800px; margin: 0 auto;">
+    {% if error %}
+    <div style="background-color: #FCE8E6; color: #D93025; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">error</span>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" style="display: grid; gap: 24px;">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="nombres" style="font-weight: 500; color: var(--on-surface);">Nombres *</label>
+                <input type="text" id="nombres" name="nombres" required value="{{ usuario.nombres|default:'' }}" 
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="apellidos" style="font-weight: 500; color: var(--on-surface);">Apellidos *</label>
+                <input type="text" id="apellidos" name="apellidos" required value="{{ usuario.apellidos|default:'' }}"
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="ci" style="font-weight: 500; color: var(--on-surface);">Cédula de Identidad (CI) *</label>
+                <input type="text" id="ci" name="ci" required value="{{ usuario.ci|default:'' }}"
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="telefono" style="font-weight: 500; color: var(--on-surface);">Teléfono</label>
+                <input type="text" id="telefono" name="telefono" value="{{ usuario.telefono|default:'' }}"
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="email" style="font-weight: 500; color: var(--on-surface);">Correo Electrónico *</label>
+                <input type="email" id="email" name="email" required value="{{ usuario.email|default:'' }}"
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+            
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="id_rol" style="font-weight: 500; color: var(--on-surface);">Rol del Sistema *</label>
+                <select id="id_rol" name="id_rol" required style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px; background-color: white;">
+                    <option value="">Seleccione un rol</option>
+                    {% for rol in roles %}
+                    <option value="{{ rol.id_rol }}" {% if usuario.id_rol.id_rol == rol.id_rol %}selected{% endif %}>
+                        {{ rol.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="password" style="font-weight: 500; color: var(--on-surface);">
+                    Contraseña {% if accion == 'Editar' %}(Dejar en blanco para no cambiar){% else %}*{% endif %}
+                </label>
+                <input type="password" id="password" name="password" {% if accion == 'Crear' %}required{% endif %}
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+            
+            {% if accion == 'Crear' %}
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="confirm_password" style="font-weight: 500; color: var(--on-surface);">Confirmar Contraseña *</label>
+                <input type="password" id="confirm_password" name="confirm_password" required
+                       style="padding: 12px; border: 1px solid var(--outline); border-radius: 8px; font-family: inherit; font-size: 15px;">
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+            <input type="checkbox" id="estado" name="estado" style="width: 18px; height: 18px; accent-color: var(--primary);"
+                   {% if accion == 'Crear' or usuario.estado %}checked{% endif %}>
+            <label for="estado" style="font-weight: 500; color: var(--on-surface); cursor: pointer;">Usuario Activo (Puede iniciar sesión)</label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 16px; margin-top: 16px; border-top: 1px solid var(--surface-variant); padding-top: 24px;">
+            <a href="{% url 'lista_usuarios' %}" class="btn-secondary" style="padding: 10px 24px; border: 1px solid var(--outline); border-radius: 8px; text-decoration: none; color: var(--on-surface); font-weight: 500;">
+                Cancelar
+            </a>
+            <button type="submit" class="btn-primary" style="padding: 10px 24px; border: none; border-radius: 8px; background-color: var(--primary); color: white; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined">save</span>
+                Guardar Usuario
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

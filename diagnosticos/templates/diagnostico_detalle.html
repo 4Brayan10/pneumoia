@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Detalle del Diagnóstico{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Detalle del Diagnóstico Clínico</h1>
+        <p class="page-subtitle">Registro definitivo del diagnóstico del médico y análisis de IA.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'generar_reporte_pdf' diagnostico.id_diagnostico %}" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            Generar Reporte PDF
+        </a>
+        <a href="{% url 'paciente_detalle' paciente.id_paciente %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+            Ir al Perfil del Paciente
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-top: 20px;">
+    <!-- Información del Paciente -->
+    <div class="table-container" style="padding: 24px; height: fit-content; display: flex; flex-direction: column; gap: 16px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #0f172a;">Paciente</h3>
+        <div>
+            <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Nombre y Apellido</span>
+            <div style="font-size: 14px; font-weight: 500; color: #0f172a; margin-top: 2px;">{{ paciente.nombres }} {{ paciente.apellidos }}</div>
+        </div>
+        <div>
+            <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">CI</span>
+            <div style="font-size: 14px; font-weight: 500; color: #0f172a; margin-top: 2px;">{{ paciente.ci|default:"-" }}</div>
+        </div>
+        <div>
+            <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Fecha Diagnóstico</span>
+            <div style="font-size: 14px; font-weight: 500; color: #0f172a; margin-top: 2px;">{{ diagnostico.fecha_diagnostico|date:"d M Y, H:i" }}</div>
+        </div>
+        <div>
+            <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Médico Responsable</span>
+            <div style="font-size: 14px; font-weight: 500; color: #0f172a; margin-top: 2px;">Dr. {{ diagnostico.id_usuario.nombres }} {{ diagnostico.id_usuario.apellidos }}</div>
+        </div>
+    </div>
+
+    <!-- Resultados del Diagnóstico Clínico -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="table-container" style="padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 18px; color: #0f172a;">Resumen Médico</h3>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #2e8af6; padding: 16px; border-radius: 4px; margin-bottom: 20px;">
+                <span style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase;">Diagnóstico Clínico Final</span>
+                <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px;">{{ diagnostico.diagnostico_final }}</div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 6px 0; font-size: 14px; color: #475569;">Observaciones Clínicas</h4>
+                <p style="margin: 0; font-size: 14px; color: #0f172a; line-height: 1.6; white-space: pre-line;">{{ diagnostico.observaciones }}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin: 0 0 6px 0; font-size: 14px; color: #475569;">Recomendaciones / Tratamiento</h4>
+                <p style="margin: 0; font-size: 14px; color: #0f172a; line-height: 1.6; white-space: pre-line;">{{ diagnostico.recomendaciones }}</p>
+            </div>
+        </div>
+
+        <div class="table-container" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; font-size: 18px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined" style="color: #2e8af6;">analytics</span>
+                    Estudio de Inteligencia Artificial
+                </h3>
+                <a href="{% url 'resultado_ia_detalle' radiografia.id_radiografia %}" style="text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 8px; font-weight: 500;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+                    Ver análisis completo
+                </a>
+            </div>
+
+            <!-- Imágenes: Radiografía + Mapa de Calor -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                <!-- Radiografía Original -->
+                <div style="background: #0f172a; border-radius: 10px; overflow: hidden;">
+                    <div style="padding: 8px 12px; background: #1e293b; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em;">
+                        Radiografía Original
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; min-height: 280px; padding: 8px;">
+                        {% if radiografia.ruta_archivo %}
+                        <img src="{{ radiografia.ruta_archivo.url }}" alt="Radiografía Original"
+                             style="max-width: 100%; max-height: 300px; object-fit: contain; filter: contrast(1.1);"
+                             onclick="this.style.cursor='zoom-out'; window.open('{{ radiografia.ruta_archivo.url }}','_blank')"
+                             style="cursor: zoom-in;">
+                        {% else %}
+                        <span class="material-symbols-outlined" style="font-size: 64px; color: #475569;">image</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Mapa de Calor IA (Grad-CAM simulado) -->
+                <div style="background: #0f172a; border-radius: 10px; overflow: hidden;">
+                    <div style="padding: 8px 12px; background: #1e293b; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em;">
+                        Mapa de Calor IA (Grad-CAM)
+                    </div>
+                    <div style="position: relative; display: flex; align-items: center; justify-content: center; min-height: 280px; padding: 8px;">
+                        {% if radiografia.ruta_archivo %}
+                        <img src="{{ radiografia.ruta_archivo.url }}" alt="Mapa de calor base"
+                             style="max-width: 100%; max-height: 300px; object-fit: contain; opacity: 0.8; filter: contrast(1.2) sepia(1) hue-rotate(200deg) saturate(3);">
+                        <div style="position: absolute; top: 30%; left: 25%; width: 100px; height: 100px; background: radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.6) 40%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                        <div style="position: absolute; top: 25%; right: 28%; width: 110px; height: 110px; background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(255,255,0,0.75) 30%, rgba(0,0,0,0) 70%); mix-blend-mode: screen; pointer-events: none;"></div>
+                        {% else %}
+                        <span class="material-symbols-outlined" style="font-size: 64px; color: #475569;">image</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas del análisis IA -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                <div style="text-align: center; padding: 12px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Predicción IA</div>
+                    {% if 'Neumonía' in resultado.prediccion %}
+                    <span style="display: inline-block; padding: 4px 12px; background: #fee2e2; color: #b91c1c; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 8px;">🔴 {{ resultado.prediccion }}</span>
+                    {% else %}
+                    <span style="display: inline-block; padding: 4px 12px; background: #dcfce7; color: #15803d; border-radius: 20px; font-size: 13px; font-weight: 600; margin-top: 8px;">🟢 {{ resultado.prediccion }}</span>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <div style="font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 4px;">CONFIANZA</div>
+                    <div style="font-size: 24px; font-weight: 800; color: {% if 'Neumonía' in resultado.prediccion %}#ef4444{% else %}#22c55e{% endif %};">{{ resultado.porcentaje_confianza }}%</div>
+                    <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ resultado.porcentaje_confianza }}%; background: {% if 'Neumonía' in resultado.prediccion %}#ef4444{% else %}#22c55e{% endif %}; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 12px; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Modelo IA</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ resultado.modelo_ia|default:"—" }}</div>
+                    {% if resultado.tiempo_procesamiento %}
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">⏱ {{ resultado.tiempo_procesamiento }}s</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

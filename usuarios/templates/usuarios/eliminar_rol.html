@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Eliminar Rol{% endblock %}
+{% block nav_usuarios %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header" style="margin-bottom: 24px;">
+    <div>
+        <h1 style="margin: 0; font-size: 24px; color: var(--on-surface);">Eliminar Rol</h1>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; max-width: 600px;">
+
+    {% if error %}
+    <div style="padding: 14px 18px; background-color: #fef9c3; color: #854d0e; border-radius: 8px; border: 1px solid #fde047; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; font-weight: 500;">
+        <span class="material-symbols-outlined" style="margin-top: 2px;">warning</span>
+        <div>
+            <div>{{ error }}</div>
+            <div style="font-weight: 400; font-size: 13px; margin-top: 4px;">
+                Reasigne o elimine primero los usuarios con este rol antes de eliminarlo.
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'lista_roles' %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+        Volver a la Lista de Roles
+    </a>
+    {% else %}
+    <div style="display: flex; align-items: center; gap: 16px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <span class="material-symbols-outlined" style="font-size: 40px; color: #ef4444;">shield_person</span>
+        <div>
+            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">{{ rol.nombre }}</div>
+            <div style="font-size: 14px; color: #64748b; margin-top: 4px;">{{ rol.descripcion|default:"Sin descripción." }}</div>
+        </div>
+    </div>
+
+    <p style="font-size: 15px; color: #334155; margin-bottom: 24px; line-height: 1.6;">
+        ¿Está seguro que desea eliminar el rol <strong>"{{ rol.nombre }}"</strong>?
+        Esta acción es <strong>permanente</strong> y no se puede deshacer.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-primary" style="background-color: #ef4444; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined">delete_forever</span>
+                Eliminar Definitivamente
+            </button>
+            <a href="{% url 'lista_roles' %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">
+                Cancelar
+            </a>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

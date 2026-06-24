@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PneumoIA - Registro</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+
+<body>
+    <div class="login-container">
+        
+        <div class="login-left">
+            <img class="login-image"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP1zwgbSiWp7IQ8EWR-V8XM_d26UvnMklrqt_5pc9U9cq7hAlTAC9X4WxkCpdhmFybuMwfgXdd3sPVlJGuTrm27jd5cRLEKH7ZjqjsKy4xyp_dfiwWo_PKGzCG974jorQ6HQ2uHeHoi02cwfuXEO0dMsTSE91OwuXWgvOWnwhPqBxap9q9Vq1HwK2UcteXFLSwo1lppLB312uaIMQ12tQ6-CkOlUGJRXpn2gIidy9A87-5NOfcMx8RBUBjbcGB7LqXpqDhX0jObCg"
+                alt="Lung Structure">
+            <div class="login-overlay"></div>
+            <div class="login-left-content">
+                <span class="material-symbols-outlined icon filled">pulmonology</span>
+                <h1>Únete a PneumoIA.</h1>
+                <p>Plataforma impulsada por IA para el análisis avanzado de imágenes radiográficas. Regístrese para acceder a herramientas de vanguardia.</p>
+            </div>
+            <div class="login-left-footer">
+                <span class="material-symbols-outlined">shield_person</span>
+                <span>Registro exclusivo para profesionales médicos acreditados.</span>
+            </div>
+        </div>
+
+        
+        <div class="login-right">
+            <div class="login-form-wrapper" style="max-width: 450px;">
+                <div class="login-header">
+                    <h2>Registrar nuevo usuario</h2>
+                    <p>Complete el formulario para crear su cuenta institucional.</p>
+                </div>
+
+                <form id="registroForm" method="POST" action="{% url 'registro' %}">   
+                    {% csrf_token %}
+                    
+                    {% if error %}
+                    <div style="color: red; margin-bottom: 15px; text-align: center; font-weight: bold;">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="nombres">Nombres</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">person</span>
+                            <input type="text" id="nombres" name="nombres" placeholder="Ej. Juan" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">person</span>
+                            <input type="text" id="apellidos" name="apellidos" placeholder="Ej. Pérez" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ci">Cédula de Identidad (CI)</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">badge</span>
+                            <input type="text" id="ci" name="ci" placeholder="Ej. 1234567" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">phone</span>
+                            <input type="text" id="telefono" name="telefono" placeholder="Ej. 70000000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_rol">Rol</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">work</span>
+                            <select id="id_rol" name="id_rol" required style="width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--outline); border-radius: 8px; font-size: 16px; background-color: var(--surface);">
+                                <option value="" disabled selected>Seleccione un rol</option>
+                                {% for rol in roles %}
+                                <option value="{{ rol.id_rol }}">{{ rol.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico Institucional</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">mail</span>
+                            <input type="email" id="email" name="email" placeholder="dr.apellido@clinica.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="password-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">lock</span>
+                            <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="confirm-password-group">
+                        <label for="confirm-password">Confirmar Contraseña</label>
+                        <div class="input-container">
+                            <span class="material-symbols-outlined">lock_reset</span>
+                            <input type="password" id="confirm-password" name="confirm_password" placeholder="Repita su contraseña" required>
+                        </div>
+                        <div class="error-message">
+                            <span class="material-symbols-outlined">error</span>
+                            <span>Las contraseñas no coinciden.</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-submit" style="margin-top: 16px;">
+                        Crear cuenta
+                        <span class="material-symbols-outlined">person_add</span>
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 24px;">
+                        <span style="font-size: 14px; color: var(--on-surface-variant);">¿Ya tiene una cuenta?</span> 
+                        <a href="{% url 'login' %}" style="font-size: 14px; font-weight: 500; color: var(--primary); text-decoration: none;">Iniciar sesión</a>
+                    </div>
+                </form>
+
+                <script>
+                    document.getElementById('registroForm').addEventListener('submit', function(e) {
+                        const password = document.getElementById('password').value;
+                        const confirmPassword = document.getElementById('confirm-password').value;
+                        const confirmGroup = document.getElementById('confirm-password-group');
+                        
+                        confirmGroup.classList.remove('has-error');
+
+                        if (password !== confirmPassword) {
+                            e.preventDefault(); 
+                            confirmGroup.classList.add('has-error');
+                            return;
+                        }
+                    });
+                </script>
+
+                <div class="login-footer">
+                    <span class="material-symbols-outlined">lock</span>
+                    <span>Información protegida.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

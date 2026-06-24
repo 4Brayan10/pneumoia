@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Eliminar Paciente{% endblock %}
+{% block nav_pacientes %}active{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Eliminar Paciente</h1>
+    </div>
+</div>
+
+<div class="table-container" style="padding: 24px; max-width: 600px;">
+    <p style="font-size: 16px; color: #334155; margin-bottom: 20px;">
+        ¿Está seguro que desea eliminar al paciente <strong>{{ paciente.nombres }} {{ paciente.apellidos }}</strong>?
+        Esta acción no se puede deshacer.
+    </p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-primary" style="background-color: #ef4444;">Eliminar Confirmado</button>
+            <a href="{% url 'pacientes_lista' %}" class="btn-clear" style="text-decoration: none; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; border-radius: 8px; font-weight: 500;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

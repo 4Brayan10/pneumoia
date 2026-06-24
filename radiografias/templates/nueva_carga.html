@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block titulo %}Nueva Carga{% endblock %}
+{% block nav_nueva_carga %}active{% endblock %}
+
+{% block contenido %}
+<div class="upload-card">
+    <h1 class="upload-card-title">Cargar Radiografía de Tórax</h1>
+    <p class="upload-card-desc">Seleccione el paciente y cargue el archivo de imagen para iniciar el análisis asistido por IA.</p>
+
+    <form method="post" enctype="multipart/form-data" style="width: 100%; display: flex; flex-direction: column; gap: 20px;">
+        {% csrf_token %}
+        
+        <div style="display: flex; flex-direction: column; gap: 8px; text-align: left;">
+            <label for="paciente" style="font-size: 14px; font-weight: 600; color: #1e293b;">PACIENTE</label>
+            <select name="paciente" id="paciente" class="form-control" required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #f8fafc;">
+                <option value="">-- Seleccionar Paciente --</option>
+                {% for pac in pacientes %}
+                <option value="{{ pac.id_paciente }}">{{ pac.apellidos }}, {{ pac.nombres }} (CI: {{ pac.ci|default:"-" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="dropzone" style="cursor: pointer; position: relative;">
+            <input type="file" name="archivo" id="archivo" accept=".jpg,.jpeg,.png" required style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+            <div class="dropzone-icon">
+                <span class="material-symbols-outlined">cloud_upload</span>
+            </div>
+            <div class="dropzone-text" id="file-label-text">Seleccione un archivo de su ordenador (.jpg, .png)</div>
+            <div class="dropzone-formats">
+                <span class="format-badge">JPG</span>
+                <span class="format-badge">PNG</span>
+                <span>Límite: 5MB</span>
+            </div>
+        </div>
+
+        <div class="upload-actions" style="margin-top: 10px;">
+            <button type="submit" class="btn-primary" style="border: none; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span class="material-symbols-outlined">analytics</span>
+                Iniciar Análisis
+            </button>
+        </div>
+    </form>
+
+    <div class="secure-footer">
+        <span class="material-symbols-outlined">lock</span>
+        Conexión segura y encriptada. Cumple con normativas HIPAA y RGPD.
+    </div>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0f172a;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #2e8af6;
+        box-shadow: 0 0 0 3px rgba(46, 138, 246, 0.1);
+        background-color: #ffffff;
+    }
+</style>
+
+<script>
+    document.getElementById('archivo').addEventListener('change', function(e) {
+        const fileLabel = document.getElementById('file-label-text');
+        if (this.files && this.files.length > 0) {
+            fileLabel.textContent = "Archivo seleccionado: " + this.files[0].name;
+            fileLabel.style.color = "#2e8af6";
+            fileLabel.style.fontWeight = "600";
+        } else {
+            fileLabel.textContent = "Seleccione un archivo de su ordenador (.jpg, .png)";
+            fileLabel.style.color = "";
+            fileLabel.style.fontWeight = "";
+        }
+    });
+</script>
+{% endblock %}

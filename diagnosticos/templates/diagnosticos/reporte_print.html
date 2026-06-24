@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Médico - Paciente: {{ paciente.apellidos }}, {{ paciente.nombres }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+            margin: 40px;
+            font-size: 14px;
+        }
+        .header {
+            border-bottom: 2px solid #2e8af6;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #2e8af6;
+        }
+        .header-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+        .report-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .section {
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            color: #444;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .info-item {
+            margin-bottom: 8px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            font-size: 12px;
+        }
+        .info-value {
+            font-size: 14px;
+        }
+        .diagnosis-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2e8af6;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .image-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-box img {
+            max-width: 300px;
+            max-height: 300px;
+            border: 1px solid #ccc;
+            padding: 5px;
+            background: #fff;
+        }
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .signature-area {
+            margin-top: 80px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+            font-size: 12px;
+        }
+        @media print {
+            body {
+                margin: 20px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background-color: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #cbd5e1;">
+        <span><strong>Vista de Impresión Oficial:</strong> Use el diálogo de impresión para guardar el documento como un PDF.</span>
+        <button onclick="window.print()" style="background-color: #2e8af6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Imprimir / Guardar PDF</button>
+    </div>
+
+    <div class="header">
+        <div>
+            <h1>PneumoIA</h1>
+            <div class="header-subtitle">Diagnóstico y Cuidado Radiológico Inteligente</div>
+        </div>
+        <div style="text-align: right;">
+            <div><strong>Código Reporte:</strong> R-{{ diagnostico.id_diagnostico|stringformat:"05d" }}</div>
+            <div class="header-subtitle">Fecha Emisión: {{ diagnostico.fecha_diagnostico|date:"d/m/Y H:i" }}</div>
+        </div>
+    </div>
+
+    <div class="report-title">Reporte Clínico y Radiográfico</div>
+
+    <div class="section">
+        <div class="section-title">Datos del Paciente</div>
+        <div class="grid">
+            <div class="info-item">
+                <div class="info-label">NOMBRE Y APELLIDO</div>
+                <div class="info-value">{{ paciente.apellidos }}, {{ paciente.nombres }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">CÉDULA DE IDENTIDAD (CI)</div>
+                <div class="info-value">{{ paciente.ci|default:"No registrado" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">EDAD / FECHA DE NACIMIENTO</div>
+                <div class="info-value">
+                    {{ paciente.fecha_nacimiento|date:"d M Y"|default:"No registrada" }}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">SEXO / PESO / TALLA</div>
+                <div class="info-value">
+                    {% if paciente.sexo == 'M' %}Masculino{% elif paciente.sexo == 'F' %}Femenino{% else %}-{% endif %} / 
+                    {{ paciente.peso|default:"-" }} kg / 
+                    {{ paciente.talla|default:"-" }} m
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Análisis de Soporte por IA</div>
+        <div class="grid">
+            <div class="info-item">
+                <div class="info-label">PREDICCIÓN IA</div>
+                <div class="info-value" style="font-weight: bold; color: {% if 'Neumonía' in resultado.prediccion %}#d32f2f{% else %}#388e3c{% endif %};">
+                    {{ resultado.prediccion|upper }}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">CONFIANZA DEL MODELO</div>
+                <div class="info-value">{{ resultado.porcentaje_confianza }}%</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">SISTEMA UTILIZADO</div>
+                <div class="info-value">{{ resultado.modelo_ia }} (Tiempo: {{ resultado.tiempo_procesamiento }}s)</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">NOMBRE ARCHIVO RADIOGRAFÍA</div>
+                <div class="info-value">{{ radiografia.nombre_archivo }}</div>
+            </div>
+        </div>
+        
+        {% if radiografia.ruta_archivo %}
+        <div class="image-box">
+            <img src="{{ radiografia.ruta_archivo.url }}" alt="Radiografía de Tórax">
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Imagen de tórax asociada al estudio</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section" style="page-break-inside: avoid;">
+        <div class="section-title">Evaluación Médica Definitiva</div>
+        <div class="info-label">DIAGNÓSTICO FINAL DEL MÉDICO</div>
+        <div class="diagnosis-box">
+            {{ diagnostico.diagnostico_final }}
+        </div>
+        
+        <div class="info-item" style="margin-top: 15px;">
+            <div class="info-label">OBSERVACIONES CLÍNICAS</div>
+            <div class="info-value" style="white-space: pre-line;">{{ diagnostico.observaciones }}</div>
+        </div>
+        
+        <div class="info-item" style="margin-top: 15px;">
+            <div class="info-label">RECOMENDACIONES Y TRATAMIENTO SUGERIDO</div>
+            <div class="info-value" style="white-space: pre-line;">{{ diagnostico.recomendaciones }}</div>
+        </div>
+    </div>
+
+    <div class="signature-area" style="page-break-inside: avoid;">
+        <div class="signature-line">
+            Firma del Médico Responsable<br>
+            <span style="font-size: 11px; color: #555;">Dr. {{ diagnostico.id_usuario.nombres }} {{ diagnostico.id_usuario.apellidos }}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        Este documento es un reporte clínico generado por la plataforma PneumoIA de uso estrictamente médico y confidencial.
+    </div>
+
+    <script>
+        // Lanzar el cuadro de diálogo de impresión automáticamente tras cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
